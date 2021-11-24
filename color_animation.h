@@ -76,7 +76,7 @@ public :
 
 	Functions f;
 	byte animationMode;
-
+	uint16_t _prevHue;
 	ColorAnimation():Color(),f() {}
 	virtual ~ColorAnimation(){}
 
@@ -85,6 +85,7 @@ public :
 
 	void setAnimation(byte animation){
 		f.resetTimer();
+		_prevHue = _hue;
 		animationMode = animation;
 	}
 	bool beatColor2Zero(){
@@ -110,25 +111,25 @@ public :
 
 
 	void rainbow1(){
-		float hue = f.cosines(R1_N,(float*)R1_AMPS,(float*)R1_FREQS,(float*)R1_PHASES);
-		setHSB(HUE_MAX*hue,SATURATION_MAX,BRIGHTNESS_MAX);
+		float hue = HUE_MAX*f.cosines(R1_N,(float*)R1_AMPS,(float*)R1_FREQS,(float*)R1_PHASES);
+		setHSB(hue_in_range(hue+_prevHue),SATURATION_MAX,BRIGHTNESS_MAX);
 
 	}
 
 	void rainbow2(){
-	  float hue = f.cosines(R2_N,(float*)R2_AMPS,(float*)R2_FREQS,(float*)R2_PHASES);
-	  setHSB(HUE_MAX*hue,SATURATION_MAX,BRIGHTNESS_MAX);
+	  float hue = HUE_MAX*f.cosines(R2_N,(float*)R2_AMPS,(float*)R2_FREQS,(float*)R2_PHASES);
+	  setHSB(hue_in_range(hue+_prevHue),SATURATION_MAX,BRIGHTNESS_MAX);
 	}
 
 	void fastRainbow(){
-		float hue = f.cosines(RF_N,(float*)RF_AMPS,(float*)RF_FREQS,(float*)RF_PHASES);
-		setHSB(HUE_MAX*hue,SATURATION_MAX,BRIGHTNESS_MAX);
+		float hue = HUE_MAX*f.cosines(RF_N,(float*)RF_AMPS,(float*)RF_FREQS,(float*)RF_PHASES);
+		setHSB(hue_in_range(hue+_prevHue),SATURATION_MAX,BRIGHTNESS_MAX);
 	}
 
 	void circleRainbow(){
-		float hue = f.circles(RC_N,(float*)RC_AMPS,(float*)RC_FREQS,(float*)RC_PHASES);
+		float hue = HUE_MAX*f.circles(RC_N,(float*)RC_AMPS,(float*)RC_FREQS,(float*)RC_PHASES);
 		// Serial.println(hue);
-		setHSB(HUE_MAX*hue,SATURATION_MAX,BRIGHTNESS_MAX);
+		setHSB(hue_in_range(hue+_prevHue),SATURATION_MAX,BRIGHTNESS_MAX);
 	}
 
 	void circleRainbow(uint16_t center, float freq){
@@ -136,7 +137,7 @@ public :
 			float circle = f.circles(RC_N,(float*)RC_AMPS,(float*)RC_FREQS,(float*)RC_PHASES);
 			uint16_t hue = uint16_t(center + (float(HUE_MAX)*circle))%HUE_MAX;
 			
-			setHSB(hue,SATURATION_MAX,BRIGHTNESS_MAX);
+			setHSB(hue_in_range(hue+_prevHue),SATURATION_MAX,BRIGHTNESS_MAX);
 	}
 
 	void allRandom(){
