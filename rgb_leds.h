@@ -7,7 +7,6 @@
 // #include "WProgram.h"
 // #endif
 
-
 void initPins(const uint8_t *pins, uint8_t size, uint8_t mode)
 {
 	for (uint8_t n = 0; n < size; n++)
@@ -21,8 +20,6 @@ void initInputs(const uint8_t *pins, uint8_t size)
 {
 	initPins(pins, size, INPUT);
 }
-
-
 
 class RGBLed
 {
@@ -70,8 +67,6 @@ public:
 
 	void write(uint8_t *c) { write(c[0], c[1], c[2]); }
 
-	
-
 	void write(long c)
 	{
 
@@ -79,10 +74,31 @@ public:
 		long g = 0xff & (c >> 8);
 		long b = 0xff & (c >> 16);
 
-		write(r,g,b);
+		write(r, g, b);
 	}
 
 	void off() { write(0, 0, 0); }
+
+	void blink(uint8_t r, uint8_t g, uint8_t b, uint16_t times, uint16_t ms_on, uint16_t ms_off = 0)
+	{
+		uint16_t o = ms_off == 0 ? ms_on : ms_off;
+		for (uint8_t n = 0; n < times; n++)
+		{
+			write(r,g,b);
+			delay(ms_on);
+			off();
+			delay(o);
+		}
+	}
+	void blink(const uint8_t *c, uint16_t times, uint16_t ms_on,uint16_t ms_off = 0)
+	{
+		blink(c[0],c[1],c[2],times,ms_on,ms_off);
+		
+	}
+
+	void blink(uint8_t *c, uint16_t times, uint16_t ms_on,uint16_t ms_off = 0){
+		blink((const uint8_t*)c,times,ms_on,ms_off);
+	}
 };
 
 class DigitalRGBLed : public virtual RGBLed
@@ -117,6 +133,5 @@ public:
 			digitalWrite(leds[n], modeValue(bitRead(digitalColor, n)));
 	}
 };
-
 
 #endif /* RGB_LEDS_H_ */

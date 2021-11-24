@@ -6,6 +6,8 @@
 #include <arduino_utils.h>
 
 #include "colors_defines.h"
+
+
 #define HUE_MAX 359
 #define SATURATION_MAX 255
 #define BRIGHTNESS_MAX 255
@@ -356,6 +358,7 @@ public:
     {
         return RGBOutput(_red, _green, _blue);
     }
+    
     /** Copies rgb to input array **/
     void toRGB(uint8_t *rgb)
     {
