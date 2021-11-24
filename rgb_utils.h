@@ -48,13 +48,16 @@ struct ColorTone
     static const uint16_t blue_sky = 10000;
 };
 
-/** Based on Kelvin2RGB library code **/
+/** Returns given @hue in range [0,359] **/
+uint16_t hue_in_range(int hue);
+/** Convert color temperature in kelvin [0,65500] to RGB **/
 void temperature_to_rgb(uint16_t kelvin, uint8_t brightness, uint8_t &red, uint8_t &green, uint8_t &blue);
 /** From Wikipedia **/
 void hsv_to_rgb(uint16_t hue, uint8_t saturation, uint8_t value, uint8_t &red, uint8_t &green, uint8_t &blue);
 
 /** From Wikipedia **/
 void rgb_to_hsv(uint8_t red, uint8_t green, uint8_t blue, uint16_t &hue, uint8_t &saturation, uint8_t &value);
+
 
 class RGBOutput;
 
@@ -117,7 +120,7 @@ public:
 
     static RGBOutput PROGRESSION100(unsigned long progress100, RGBOutput startV, RGBOutput endV);
 
-    /** Based on Kelvin2RGB library code **/
+   
     static RGBOutput FROM_TEMPERATURE(uint16_t temperature, uint8_t brightness = 255, uint8_t maxBrightness = 255);
 
     static RGBOutput FROM_HSV(uint16_t hue, uint8_t saturation, uint8_t value);
@@ -309,13 +312,13 @@ public:
         setRGB(0xff & color, 0xff & (color >> 8), 0xff & (color >> 16));
     }
 
-    /** Sets color temperature [0,65500]  and brightness **/
+    /** Sets color temperature (kelvin) [0,65500] and brightness [0,255] **/
     void setTemperature(uint16_t kelvin, uint8_t brightness)
     {
         temperature_to_rgb(kelvin, brightness, _red, _green, _blue);
         updateHSV();
     }
-    /** Sets color temperature in kelving **/
+    /** Sets color temperature (kelvin) [0,65500] **/
     void setTemperature(uint16_t kelvin)
     {
         setTemperature(kelvin, brightness());

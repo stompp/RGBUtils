@@ -1,15 +1,24 @@
 #include "rgb_utils.h"
 
-/** Based on Kelvin2RGB library code **/
+uint16_t hue_in_range(int hue)
+{
+    int h = HUE_MAX +1;
+    while (hue < 0)
+    {
+        hue += (h);
+    }
+
+    return (uint16_t)(hue % (h));
+}
+
 void temperature_to_rgb(uint16_t kelvin, uint8_t brightness, uint8_t &red, uint8_t &green, uint8_t &blue)
 {
     float temp = (constrain((float)kelvin, 0.0, 65500.0)) / 100.0;
 
-    // red & green
     float r = 255.0;
     float g;
-     
     float b = 255.0;
+
     if (temp > 66.0)
     {
         r = 329.698727466 * pow(temp - 60.0, -0.1332047592);
@@ -18,7 +27,7 @@ void temperature_to_rgb(uint16_t kelvin, uint8_t brightness, uint8_t &red, uint8
     else
     {
         g = (99.4708025861 * log(temp)) - 161.1195681661;
-        
+
         // blue
         if (temp <= 19.0)
         {
