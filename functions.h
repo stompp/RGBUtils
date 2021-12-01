@@ -161,7 +161,7 @@ public:
 	/** Cosines addition
 	* @param size Number of cosines
 	* @param amplitudes Amplitudes of each cosine wave.
-	* @param freqs Frequencies of each cosine wave. A 0 value will cause a offset level.
+	* @param freqs Frequencies of each cosine wave. A 0 value will cause an offset level.
 	* @param phases Initial phase for each cosine wave. A -HALF_PI value Will convert the cosine in a sine wave.
 	* @param speed Frequency multiplier/divisor.
 	*/
@@ -195,6 +195,42 @@ public:
 			return out;
 		}
 
+	/** Sines addition
+	* @param size Number of cosines
+	* @param amplitudes Amplitudes of each cosine wave.
+	* @param freqs Frequencies of each cosine wave. A 0 value will cause an offset level.
+	* @param phases Initial phase for each wave
+	* @param speed Frequency multiplier/divisor.
+	*/
+	float sines(uint8_t size,float* amplitudes,float* freqs,float* phases, float speed = 1.0){
+
+
+		if(size == 0 ) return 0.0;
+
+		float out = 0.0;
+		float k;
+#if DEBUG
+		float tt = t();
+		k = wt(speed,tt);
+#else
+		k = wt(speed);
+#endif
+		uint8_t n = 0;
+		while(n++ < size){
+			out += (*amplitudes++)*sin(k*(*freqs++) + (*phases++));
+
+		}
+
+		out = getInCircle(out);
+#if DEBUG
+		Serial.println("sines");
+		Serial.print(tt);
+		Serial.print(",");
+		Serial.println(out);
+#endif
+
+			return out;
+		}
 
 	float circle(float f, float ph = 0.0){
 
