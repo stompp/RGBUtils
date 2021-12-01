@@ -33,10 +33,9 @@
 #define CIRCLE_FREQ 0.25
 
 const int R1_N = 2;
-const float R1_AMPS[] = {0.5,0.5};
-const float R1_FREQS[] = {0.0,0.05};
-const float R1_PHASES[] = {0.0,PI};
-
+const float R1_AMPS[] = {0.5, 0.5};
+const float R1_FREQS[] = {0.0, 0.05};
+const float R1_PHASES[] = {0.0, PI};
 
 //#define R1_N  2
 //#define R1_AMPS (0.5f,-0.5f)
@@ -44,119 +43,168 @@ const float R1_PHASES[] = {0.0,PI};
 //#define R1_PHASES (0.0f,0.0f)
 
 const int R2_N = 3;
-const float R2_AMPS[] = {0.25,0.5,0.5};
-const float R2_FREQS[] = {0.0,0.05,0.4};
-const float R2_PHASES[] = {0.0,0.0,0.0};
+const float R2_AMPS[] = {0.25, 0.5, 0.5};
+const float R2_FREQS[] = {0.0, 0.05, 0.4};
+const float R2_PHASES[] = {0.0, 0.0, 0.0};
 
 const int RF_N = 2;
-const float RF_AMPS[] = {0.5,0.5};
-const float RF_FREQS[] = {0.0,0.4};
-const float RF_PHASES[] = {0.0,PI};
+const float RF_AMPS[] = {0.5, 0.5};
+const float RF_FREQS[] = {0.0, 0.4};
+const float RF_PHASES[] = {0.0, PI};
 
 const int RC_N = 1;
 const float RC_AMPS[] = {1};
 const float RC_FREQS[] = {0.25};
 const float RC_PHASES[] = {0.0};
 
-
 const int BEAT_N = 2;
-const float BEAT_AMPS[] = {0.5,0.5};
-const float BEAT_FREQS[] = {0,BEAT_FREQ};
-const float BEAT_PHASES[] = {0.0,PI};
+const float BEAT_AMPS[] = {0.5, 0.5};
+const float BEAT_FREQS[] = {0, BEAT_FREQ};
+const float BEAT_PHASES[] = {0.0, PI};
 
 // these are the pins connected to
 // the RGB LEDs
 
+class ColorAnimation : public Color
+{
 
-class ColorAnimation : public Color{
-
-
-public :
-
-
+public:
 	Functions f;
+
+	byte brightnessAnimation;
+	
+	byte colorAnimation;
+
 	byte animationMode;
+
 	uint16_t _prevHue;
-	ColorAnimation():Color(),f() {}
-	virtual ~ColorAnimation(){}
 
-	Color* color(){return (Color*)this;}
-	void resetEffectsTimer(){ f.resetTimer();}
 
-	void setAnimation(byte animation){
-		f.resetTimer();
-		_prevHue = _hue;
-		animationMode = animation;
+	ColorAnimation() : Color(), f() {}
+	virtual ~ColorAnimation() {}
+
+	Color *color() { return (Color *)this; }
+	void resetEffectsTimer() { f.resetTimer(); }
+
+	void setAnimation(byte animation)
+	{
+
+		if (animation == NO_ANIMATION)
+		{
+			brightnessAnimation = animationMode = animation;
+		}
+		else if (animation == MODE_BEATING)
+		{
+
+			brightnessAnimation = (brightnessAnimation == MODE_BEATING) ? NO_ANIMATION : MODE_BEATING;
+		}
+		else
+		{
+			animationMode = animation;
+			_prevHue = _hue;
+			f.resetTimer();
+		}
+
+		
 	}
-	bool beatColor2Zero(){
+	bool beatColor2Zero()
+	{
 		beatColor();
-		return (_brightness>1);
+		return (_brightness > 1);
 	}
 
-//	void beatColor2Zero(){
-//		do{beatColor();
-//		}while (brightness>1);
-//	}
+	//	void beatColor2Zero(){
+	//		do{beatColor();
+	//		}while (brightness>1);
+	//	}
 
 	// NON-BLOCKING METHODS
 
-	void beatColor(/*float timesWT = 6*/){
+	void beatColor(/*float timesWT = 6*/)
+	{
 
-		float brightness = 255*f.cosines(BEAT_N,(float*)BEAT_AMPS,(float*)BEAT_FREQS,(float*)BEAT_PHASES);
+		float brightness = 255 * f.cosines(BEAT_N, (float *)BEAT_AMPS, (float *)BEAT_FREQS, (float *)BEAT_PHASES,2.0);
 		setBrightness(brightness);
-
 	}
 
-
-
-
-	void rainbow1(){
-		float hue = HUE_MAX*f.cosines(R1_N,(float*)R1_AMPS,(float*)R1_FREQS,(float*)R1_PHASES);
-		setHSB(hue_in_range(hue+_prevHue),SATURATION_MAX,BRIGHTNESS_MAX);
-
+	void rainbow1()
+	{
+		float hue = HUE_MAX * f.cosines(R1_N, (float *)R1_AMPS, (float *)R1_FREQS, (float *)R1_PHASES);
+		// setHSB(hue_in_range(hue+_prevHue),SATURATION_MAX,BRIGHTNESS_MAX);
+		setHue(hue_in_range(hue + _prevHue));
 	}
 
-	void rainbow2(){
-	  float hue = HUE_MAX*f.cosines(R2_N,(float*)R2_AMPS,(float*)R2_FREQS,(float*)R2_PHASES);
-	  setHSB(hue_in_range(hue+_prevHue),SATURATION_MAX,BRIGHTNESS_MAX);
+	void rainbow2()
+	{
+		float hue = HUE_MAX * f.cosines(R2_N, (float *)R2_AMPS, (float *)R2_FREQS, (float *)R2_PHASES);
+		//   setHSB(hue_in_range(hue+_prevHue),SATURATION_MAX,BRIGHTNESS_MAX);
+		setHue(hue_in_range(hue + _prevHue));
 	}
 
-	void fastRainbow(){
-		float hue = HUE_MAX*f.cosines(RF_N,(float*)RF_AMPS,(float*)RF_FREQS,(float*)RF_PHASES);
-		setHSB(hue_in_range(hue+_prevHue),SATURATION_MAX,BRIGHTNESS_MAX);
+	void fastRainbow()
+	{
+		float hue = HUE_MAX * f.cosines(RF_N, (float *)RF_AMPS, (float *)RF_FREQS, (float *)RF_PHASES);
+		// setHSB(hue_in_range(hue+_prevHue),SATURATION_MAX,BRIGHTNESS_MAX);
+		setHue(hue_in_range(hue + _prevHue));
 	}
 
-	void circleRainbow(){
-		float hue = HUE_MAX*f.circles(RC_N,(float*)RC_AMPS,(float*)RC_FREQS,(float*)RC_PHASES);
+	void circleRainbow()
+	{
+		float hue = HUE_MAX * f.circles(RC_N, (float *)RC_AMPS, (float *)RC_FREQS, (float *)RC_PHASES);
 		// Serial.println(hue);
-		setHSB(hue_in_range(hue+_prevHue),SATURATION_MAX,BRIGHTNESS_MAX);
+		// setHSB(hue_in_range(hue+_prevHue),SATURATION_MAX,BRIGHTNESS_MAX);
+		setHue(hue_in_range(hue + _prevHue));
 	}
 
-	void circleRainbow(uint16_t center, float freq){
-	//		float hue = circle(CIRCLE_FREQ);
-			float circle = f.circles(RC_N,(float*)RC_AMPS,(float*)RC_FREQS,(float*)RC_PHASES);
-			uint16_t hue = uint16_t(center + (float(HUE_MAX)*circle))%HUE_MAX;
-			
-			setHSB(hue_in_range(hue+_prevHue),SATURATION_MAX,BRIGHTNESS_MAX);
+	void circleRainbow(uint16_t center, float freq)
+	{
+		//		float hue = circle(CIRCLE_FREQ);
+		float circle = f.circles(RC_N, (float *)RC_AMPS, (float *)RC_FREQS, (float *)RC_PHASES);
+		uint16_t hue = uint16_t(center + (float(HUE_MAX) * circle)) % HUE_MAX;
+
+		// setHSB(hue_in_range(hue+_prevHue),SATURATION_MAX,BRIGHTNESS_MAX);
+		setHue(hue_in_range(hue + _prevHue));
 	}
 
-	void allRandom(){
-		setRGB(random(0,255),random(0,255),random(0,255));
+	void allRandom()
+	{
+		setRGB(random(0, 255), random(0, 255), random(0, 255));
 	}
 
-	void updateAnimation(){
+	void updateAnimation()
+	{
 
-		 switch (animationMode) {
-				case MODE_BEATING: beatColor(); break;
-				case MODE_RAINBOW1: rainbow1();	break;
-				case MODE_RAINBOW2: rainbow2();	break;
-				case MODE_FAST_RAINBOW: fastRainbow();	break;
-				case MODE_CIRCLE_RAINBOW: circleRainbow();	break;
-				case MODE_RANDOM: allRandom();
-				default: break;
-			}
+		switch (brightnessAnimation)
+		{
+		case MODE_BEATING:
+			beatColor();
+		
+		default:
+			break;
+		}
+	
+
+	switch (animationMode)
+	{
+	case MODE_RAINBOW1:
+		rainbow1();
+		break;
+	case MODE_RAINBOW2:
+		rainbow2();
+		break;
+	case MODE_FAST_RAINBOW:
+		fastRainbow();
+		break;
+	case MODE_CIRCLE_RAINBOW:
+		circleRainbow();
+		break;
+	case MODE_RANDOM:
+		allRandom();
+	default:
+		break;
 	}
-};
-
+}
+}
+;
 
 #endif /* COLOR_ANIMATION_H_ */

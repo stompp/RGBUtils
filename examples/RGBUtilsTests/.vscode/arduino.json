@@ -1,0 +1,4 @@
+{
+    "sketch": "RGBUtilsTests.ino",
+    "board": "arduino:avr:uno"
+}

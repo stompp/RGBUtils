@@ -105,7 +105,6 @@ public:
 
     uint8_t brightness();
 
-
     unsigned long toInt();
 
     HSVOutput toHSV();
@@ -119,7 +118,6 @@ public:
     static RGBOutput PROGRESSION(unsigned long progress, unsigned long progressStart, unsigned long progressEnd, RGBOutput startV, RGBOutput endV);
 
     static RGBOutput PROGRESSION100(unsigned long progress100, RGBOutput startV, RGBOutput endV);
-
    
     static RGBOutput FROM_TEMPERATURE(uint16_t temperature, uint8_t brightness = 255, uint8_t maxBrightness = 255);
 
@@ -154,15 +152,6 @@ public:
 //     }
 // };
 
-// class Kolor
-// {
-
-// protected:
-//     RGBOutput _rgb;
-//     HSVOutput _hsv;
-
-// };
-
 class Color
 {
 protected:
@@ -176,7 +165,6 @@ protected:
 
     void updateRGB()
     {
-
         hsv_to_rgb(_hue, _saturation, _brightness, _red, _green, _blue);
     }
 

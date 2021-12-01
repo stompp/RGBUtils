@@ -163,8 +163,9 @@ public:
 	* @param amplitudes Amplitudes of each cosine wave.
 	* @param freqs Frequencies of each cosine wave. A 0 value will cause a offset level.
 	* @param phases Initial phase for each cosine wave. A -HALF_PI value Will convert the cosine in a sine wave.
+	* @param speed Frequency multiplier/divisor.
 	*/
-	float cosines(uint8_t size,float* amplitudes,float* freqs,float* phases){
+	float cosines(uint8_t size,float* amplitudes,float* freqs,float* phases, float speed = 1.0){
 
 
 		if(size == 0 ) return 0.0;
@@ -173,9 +174,9 @@ public:
 		float k;
 #if DEBUG
 		float tt = t();
-		k = wt(1.0,tt);
+		k = wt(speed,tt);
 #else
-		k = wt(1.0);
+		k = wt(speed);
 #endif
 		uint8_t n = 0;
 		while(n++ < size){
@@ -193,6 +194,7 @@ public:
 
 			return out;
 		}
+
 
 	float circle(float f, float ph = 0.0){
 
@@ -373,7 +375,7 @@ public:
 		/* Determinar centro, frecuencia y amplitud
 		 * a -> amplitud = direction*distance/.0;
 		 * c = from + amplitud
-		 * freccuencia = (distancia/time)�/2?
+		 * frecuencia = (distancia/time)�/2?
 		 */
 
 		// amplitud = direction*distance/.0;
