@@ -251,7 +251,7 @@ public:
     /** Sets hue component [0,359] **/
     void setHue(uint16_t hue)
     {
-        _hue = hue;
+        _hue = hue_in_range(hue);
         updateRGB();
     }
 
@@ -263,14 +263,14 @@ public:
         updateRGB();
     }
 
-    /** Sets saturation component [0,255] **/
+    /** Sets brightness  component [0,255] **/
     void setBrightness(uint8_t brightness)
     {
         _brightness = brightness;
         updateRGB();
     }
 
-    /** Set brightness [0,255]. RGB values will be updated. */
+    /** Set saturation [0,255] */
     void setValue(uint8_t value)
     {
         _brightness = value;
@@ -297,7 +297,7 @@ public:
     /** Copies color from int*/
     void set(unsigned long color)
     {
-        setRGB(0xff & color, 0xff & (color >> 8), 0xff & (color >> 16));
+        setRGB( 0xff & (color >> 16),  0xff & (color >> 8),0xff & color);
     }
 
     /** Sets color temperature (kelvin) [0,65500] and brightness [0,255] **/
@@ -341,7 +341,7 @@ public:
         unsigned long r = 0xff & _red;
         unsigned long g = 0xff & _green;
         unsigned long b = 0xff & _blue;
-        return r | (g << 8) | (b << 16);
+        return b | (g << 8) | (r << 16);
     }
 
     /** Returns as RGBOutput **/
