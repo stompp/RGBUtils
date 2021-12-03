@@ -35,6 +35,7 @@ class AnimationFunctions : public Functions
 
 	// NON-BLOCKING METHODS
 public:
+
 	static const byte MIN_ANIMATION_ID = 128;
 	typedef enum
 	{
@@ -54,42 +55,40 @@ public:
 		positive = false;
 		program = NO_FUNCTION;
 	}
-	// ~AnimationFunctions(){
+	virtual ~AnimationFunctions(){
 
-	// }
+	}
+
 	float beat()
-	{
-		// return amp * sinePulse(1, 0, 0.25);
+	{	
 		return amp * cosines(BEAT_PD.size, (float *)BEAT_PD.amps, (float *)BEAT_PD.freqs, (float *)BEAT_PD.phases);
 	}
 
 	float rainbow1()
 	{
-		// return amp * cosines(R1_N, (float *)R1_AMPS, (float *)R1_FREQS, (float *)R1_PHASES);
 		return amp * cosines(RAINBOW1_PD.size, (float *)RAINBOW1_PD.amps, (float *)RAINBOW1_PD.freqs, (float *)RAINBOW1_PD.phases);
 	}
 
 	float rainbow2()
 	{
-		// return amp * cosines(R2_N, (float *)R2_AMPS, (float *)R2_FREQS, (float *)R2_PHASES);
 		return amp * cosines(RAINBOW2_PD.size, (float *)RAINBOW2_PD.amps, (float *)RAINBOW2_PD.freqs, (float *)RAINBOW2_PD.phases);
 	}
 
 	float fastRainbow()
 	{
-		// return amp * cosines(RF_N, (float *)RF_AMPS, (float *)RF_FREQS, (float *)RF_PHASES);
 		return amp * cosines(FAST_RAINBOW_PD.size, (float *)FAST_RAINBOW_PD.amps, (float *)FAST_RAINBOW_PD.freqs, (float *)FAST_RAINBOW_PD.phases);
 	}
 
 	float circleRainbow()
 	{
-		// return amp * circles(RC_N, (float *)RC_AMPS, (float *)RC_FREQS, (float *)RC_PHASES);
 		return amp * cosines(CIRCLE_RAINBOW_PD.size, (float *)CIRCLE_RAINBOW_PD.amps, (float *)CIRCLE_RAINBOW_PD.freqs, (float *)CIRCLE_RAINBOW_PD.phases);
 	}
 
 	void setProgram(unsigned int p)
 
 	{
+		if( p == program ) return;
+
 		program = p;
 
 		if (program < MIN_ANIMATION_ID)
@@ -147,10 +146,8 @@ class ColorAnimation : public Color
 
 public:
 	AnimationFunctions brightnessAnimation;
-	
-	AnimationFunctions hueAnimation;
-	
 
+	AnimationFunctions hueAnimation;
 	// byte animationMode;
 
 	uint16_t _prevHue;
@@ -164,9 +161,9 @@ public:
 	}
 	virtual ~ColorAnimation() {}
 
-	Color *color() { return (Color *)this; }
+	// Color *color() { return (Color *)this; }
 
-	void resetEffectsTimers()
+	void resetAllTimers()
 	{
 		brightnessAnimation.resetTimer();
 		hueAnimation.resetTimer();
@@ -191,7 +188,6 @@ public:
 		hueAnimation.setProgram(animation);
 		if (animation == NO_ANIMATION)
 		{
-
 			setHue(_prevHue);
 		}
 		else
@@ -220,6 +216,8 @@ public:
 			setColorAnimation(animation);
 		}
 	}
+
+
 	bool beatColor2Zero()
 	{
 		setBrightness(brightnessAnimation.beat());
@@ -248,17 +246,23 @@ public:
 	// 	setHue(hue + _prevHue);
 	// }
 
-	void allRandom()
-	{
-		setRGB(random(0, 255), random(0, 255), random(0, 255));
-	}
-
-	// void 	beatColor(){
-	// 		setBrightness(brightnessAnimation.beat());
+	// void allRandom()
+	// {
+	// 	setRGB(random(0, 255), random(0, 255), random(0, 255));
 	// }
+
+
 	void updateAnimation()
 	{
 
+		
+		if (isColorAnimating()){
+			setHue(_prevHue  +hueAnimation.output() );
+		}
+
+		setBrightness(brightnessAnimation.isAnimating() ? (uint8_t)brightnessAnimation.output() : BRIGHTNESS_MAX);
+/*
+		// MIXED MODE
 		uint16_t h = _prevHue;
 		if(hueAnimation.isAnimating()){
 			h+= hueAnimation.output();
@@ -266,53 +270,8 @@ public:
 		uint8_t b = brightnessAnimation.isAnimating() ? (uint8_t)brightnessAnimation.output() : BRIGHTNESS_MAX;
 		uint8_t s = SATURATION_MAX;
 
-// if(brightnessAnimation.isAnimating())
-// 		switch (brightnessAnimation)
-// 		{
-// 		case MODE_BEATING:
-// 			b = brightnessAnimation.beat();
-// 			// setBrightness(brightnessAnimation.beat());
-// 			// beatColor();
-// 			break;
-// 		default:
-// 			// setBrightness(BRIGHTNESS_MAX);
-// 			break;
-// 		}
-
-// 		switch (colorAnimation)
-// 		{
-// 		// case MODE_BEATING:
-// 		// 	setHue(_prevHue + hue_in_range(hueAnimation.beat()));
-// 		// 	break;
-// 		case MODE_RAINBOW1:
-
-// 			h += hueAnimation.rainbow1();
-// 			// setHue(hueAnimation.rainbow1() + _prevHue);
-// 			// setHue(_prevHue + hueAnimation.rainbow1());
-// 			break;
-// 		case MODE_RAINBOW2:
-// 			h += hueAnimation.rainbow2();
-// 			// setHue(hueAnimation.rainbow2() + _prevHue);
-// 			// setHue(_prevHue + hueAnimation.rainbow2());
-// 			break;
-// 		case MODE_FAST_RAINBOW:
-// 			h += hueAnimation.fastRainbow();
-// 			// setHue(hueAnimation.fastRainbow() + _prevHue);
-// 			// setHue(_prevHue + hueAnimation.fastRainbow());
-// 			break;
-// 		case MODE_CIRCLE_RAINBOW:
-// 			h += hueAnimation.circleRainbow();
-// 			// setHue(hueAnimation.circleRainbow() + _prevHue);
-// 			// Serial.println(hue());
-// 			break;
-// 		// case MODE_RANDOM:
-// 		// 	allRandom();
-// 		// break;
-// 		default:
-// 			break;
-// 		}
-
 		setHSV(h, s, b);
+		*/
 	}
 
 	bool isBrightnessAnimating()
@@ -320,6 +279,12 @@ public:
 		return brightnessAnimation.isAnimating();
 	}
 
+	bool isHueAnimating()
+	{
+		return hueAnimation.isAnimating();
+	}
+
+	
 	bool isColorAnimating()
 	{
 		return hueAnimation.isAnimating();
