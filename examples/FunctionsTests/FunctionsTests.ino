@@ -17,7 +17,7 @@ AnimationFunctions af;
 //         2, {0.5, 0.5}, {5.0, 10}, { 0.0, 0.0 } \
 //     }
 
-const PeriodicDataT<2> data = {Functions::SINE_PULSE, 2, {0.5, 0.5}, {5.0, 10.0}, {0.0, 0.0}};
+const NPeriodicData<2> data = {Functions::SINE_PULSE, 2, {0.5, 0.5}, {5.0, 10.0}, {0.0, 0.0}};
 // // const PeriodicData data;
 // const PeriodicData data {TEST_DATA];
 
