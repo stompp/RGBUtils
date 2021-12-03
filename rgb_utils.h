@@ -236,7 +236,7 @@ public:
     /** Sets hue[0,359],saturation[0,255] and value[0,255] components **/
     void setHSV(uint16_t hue, uint8_t saturation, uint8_t value)
     {
-        _hue = hue;
+         _hue = hue_in_range(hue);
         _saturation = saturation;
         _brightness = value;
         updateRGB();
