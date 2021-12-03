@@ -292,9 +292,9 @@ RGBOutput RGBOutput::PROGRESSION(unsigned long progress, unsigned long progressS
 {
     RGBOutput out;
 
-    out.red = mapFromStartToEnd(progress, progressStart, progressEnd, (unsigned long)startV.red, (unsigned long)endV.red);
-    out.green = mapFromStartToEnd(progress, progressStart, progressEnd, (unsigned long)startV.green, (unsigned long)endV.green);
-    out.blue = mapFromStartToEnd(progress, progressStart, progressEnd, (unsigned long)startV.blue, (unsigned long)endV.blue);
+    out.red = interpolate(progress, progressStart, progressEnd, (unsigned long)startV.red, (unsigned long)endV.red);
+    out.green = interpolate(progress, progressStart, progressEnd, (unsigned long)startV.green, (unsigned long)endV.green);
+    out.blue = interpolate(progress, progressStart, progressEnd, (unsigned long)startV.blue, (unsigned long)endV.blue);
     return out;
 }
 
