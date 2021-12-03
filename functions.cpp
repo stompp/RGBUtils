@@ -1,8 +1,16 @@
 #include <functions.h>
-
+void Functions::debugData()
+{
+	int N = periodicDataSize;
+	debugValue("PeriodicDataT", N);
+	printArrayln(_amps, N);
+	printArrayln(_freqs, N);
+	printArrayln(_phases, N);
+}
 Functions::Functions()
 {
 	resetTimer();
+	setPeriodicData(1, 1, 0);
 }
 
 Functions::~Functions()
@@ -33,12 +41,50 @@ float Functions::wt(float freq) { return wt() * freq; }
  */
 float Functions::wt(float freq, float phase0) { return phase0 + wt(freq); }
 
+/** Sets base amplitude if not using const periodic data
+ * 	@param amp Amplitude float value, best 1.0 to use as a base function
+ */
+void Functions::setBaseAmp(float amp)
+{
+	if(!isConst){
+		*_amps = amp;
+	}
+}
+/** Sets base frequency in Hzs if not using const periodic data
+ * 	@param freq Frequency in Hz (1/s) float value.
+ */
+void Functions::setBaseFrequency(float freq)
+{
+		if(!isConst){
+		*_freqs = freq;
+	}
+}
+/** Sets base period in seconds if not using const periodic data
+ * 	@param period Period in s (1/Hz) float value.
+ */
+void Functions::setBasePeriod(float period)
+{
+		if(!isConst){
+		*_freqs = 1.0f/period;
+	}
+}
+/** Sets base initial phase in radians  if not using const periodic data
+ * 	@param phase Phase in radians.
+ */
+void Functions::setBasePhase(float phase)
+{
+		if(!isConst){
+		*_phases = phase;
+	}
+}
+
 void Functions::setPeriodicData(float amp, float freq, float phase)
 {
 	resetPeriodicData(1);
 	*_amps = amp;
 	*_freqs = freq;
 	*_phases = phase;
+	isConst = false;
 }
 
 void Functions::setPeriodicData(uint8_t dataSize, float *amps, float *freqs, float *phases)
@@ -46,13 +92,27 @@ void Functions::setPeriodicData(uint8_t dataSize, float *amps, float *freqs, flo
 
 	resetPeriodicData(dataSize);
 
-	uint8_t n = 0;
-	while (n++ < dataSize)
+	// uint8_t n = 0;
+	// while (n++ < dataSize)
+	// {
+	// 	(*_amps++) = (*amps++);
+	// 	(*_freqs++) = (*freqs++);
+	// 	(*_phases++) = (*phases++);
+	// }
+	// memccpy(amps,_amps, dataSize, sizeof(float));
+	// memccpy(_freqs, _freqs, dataSize, sizeof(float));
+	// memccpy(_phases, _phases, dataSize, sizeof(float));
+
+	for (byte n = 0; n < dataSize; n++)
 	{
-		(*_amps++) = (*amps++);
-		(*_freqs++) = (*freqs++);
-		(*_phases++) = (*phases++);
+		_amps[n] = amps[n];
+		_freqs[n] = freqs[n];
+		_phases[n] = phases[n];
 	}
+	// 	// (*_amps++) = (*amps++);
+	// 	// (*_freqs++) = (*freqs++);
+	// 	// (*_phases++) = (*phases++);
+	// }
 }
 
 void Functions::setPeriodicData(uint8_t dataSize, const float *amps, const float *freqs, const float *phases)
@@ -72,15 +132,18 @@ void Functions::clearMemory()
 	{
 		if (_amps != NULL)
 		{
-			free(_amps);
+			delete[] _amps;
+			// free(_amps);
 		}
 		if (_freqs != NULL)
 		{
-			free(_freqs);
+			delete[] _freqs;
+			// free(_freqs);
 		}
 		if (_phases != NULL)
 		{
-			free(_phases);
+			delete[] _phases;
+			// free(_phases);
 		}
 	}
 }
@@ -98,13 +161,17 @@ void Functions::resetPeriodicData(uint8_t newSize)
 	if (periodicDataSize != 0)
 	{
 
-		// _amps = (float *)malloc(periodicDataSize * sizeof(float));
-		// _freqs = (float *)malloc(periodicDataSize * sizeof(float));
-		// _phases = (float *)malloc(periodicDataSize * sizeof(float));
+		_amps = new float[periodicDataSize];
+		_freqs = new float[periodicDataSize];
+		_phases = new float[periodicDataSize];
 
-		_amps = (float *)calloc(periodicDataSize, sizeof(float));
-		_freqs = (float *)calloc(periodicDataSize, sizeof(float));
-		_phases = (float *)calloc(periodicDataSize, sizeof(float));
+		// _amps = (float *)malloc(sizeof(float)*periodicDataSize);
+		// _freqs =  (float *)malloc(sizeof(float)*periodicDataSize);
+		// _phases =  (float *)malloc(sizeof(float)*periodicDataSize);
+
+		// _amps = (float *)calloc(periodicDataSize, sizeof(float));
+		// _freqs = (float *)calloc(periodicDataSize, sizeof(float));
+		// _phases = (float *)calloc(periodicDataSize, sizeof(float));
 		isConst = false;
 	}
 }
@@ -137,7 +204,7 @@ float Functions::cosines(uint8_t size, float *amplitudes, float *freqs, float *p
 		out += (*amplitudes++) * cos(k * (*freqs++) + (*phases++));
 	}
 
-	out = getInCircle(out);
+	// out = getInCircle(out);
 
 	return out;
 }
@@ -163,7 +230,7 @@ float Functions::sines(uint8_t size, float *amplitudes, float *freqs, float *pha
 		out += (*amplitudes++) * sin(k * (*freqs++) + (*phases++));
 	}
 
-	out = getInCircle(out);
+	// out = getInCircle(out);
 
 	return out;
 }
@@ -356,7 +423,7 @@ float Functions::square(float frequency, float phase0, float k)
 	return squareWave(wt(frequency, phase0), k);
 }
 
-float Functions::rhomboidWave(float frequency, float phase0, float k)
+float Functions::rhomboid(float frequency, float phase0, float k)
 {
 	return rhomboidWave(wt(frequency, phase0), k);
 }
@@ -370,14 +437,33 @@ float Functions::linearMovement(float x0, float v) { return x0 + v * t(); }
 
 void Functions::setFunctionType(uint8_t type) { functionType = type; }
 
-float Functions::updateFuntion()
+float Functions::value()
 {
+	if (periodicDataSize == 0)
+		return 0.0;
+
 	switch (functionType)
 	{
 	case COSINES:
 		return cosines(periodicDataSize, _amps, _freqs, _phases);
+	case SINES:
+		return cosines(periodicDataSize, _amps, _freqs, _phases);
 	case CIRCLES:
 		return circles(periodicDataSize, _amps, _freqs, _phases);
+	case TRIANGULAR:
+		return *_amps * triangular(*_freqs, *_phases, k_param);
+	case SQUARE:
+		return *_amps * square(*_freqs, *_phases, k_param);
+	case PULSE:
+		return *_amps * pulse(*_freqs, *_phases, k_param);
+	case SAWTOOTH:
+		return *_amps * sawtooth(*_freqs, *_phases);
+	case INVERSE_SAWTOOTH:
+		return *_amps * inverseSawtooth(*_freqs, *_phases);
+	case RHOMBOIDAL:
+		return *_amps * rhomboid(*_freqs, *_phases, k_param);
+	case SINE_PULSE:
+		return *_amps * sinePulse(*_freqs, *_phases, k_param);
 	default:
 		return 0.0F;
 	}

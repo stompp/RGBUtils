@@ -19,6 +19,40 @@
 #include <arduino_utils.h>
 #include <math_utils.h>
 
+struct PeriodicData
+{
+	uint8_t functionType;
+	float amp;
+	float freq;
+	float phase;
+
+	void debug()
+	{
+		println("PeriodicData");
+		debugValue("amp", amp);
+		debugValue("freq", freq);
+		debugValue("phase", phase);
+	}
+};
+
+template <int N>
+struct NPeriodicData
+{
+	uint8_t functionType;
+	uint8_t size;
+	float amps[N];
+	float freqs[N];
+	float phases[N];
+
+	void debug()
+	{
+		debugValue("PeriodicDataT", N);
+		printArrayln(amps, N);
+		printArrayln(freqs, N);
+		printArrayln(phases, N);
+	}
+};
+
 typedef struct
 {
 	float center;
@@ -41,17 +75,17 @@ protected:
 	float *_phases;
 
 public:
-
 	float speed = 1.0;
+	float k_param = 0.5;
 	uint8_t functionType;
 
+	// MAX 127
 	typedef enum
 	{
-		NONE,
+		NO_FUNCTION,
 		COSINES,
+		SINES,
 		CIRCLES,
-		SINE,
-		COSINE,
 		TRIANGULAR,
 		SQUARE,
 		PULSE,
@@ -67,8 +101,10 @@ public:
 
 	/** Sets startTime to now mills */
 	void resetTimer();
+
 	/* Gets internal function time in milliseconds	(ms)*/
 	float mt();
+
 	/* Gets internal function time in seconds (s)	 */
 	float t();
 
@@ -87,7 +123,26 @@ public:
 	 */
 	float wt(float freq, float phase0);
 
+	/** Sets base amplitude if not using const periodic data
+	 * 	@param amp Amplitude float value, best 1.0 to use as a base function
+	 */
+	void setBaseAmp(float amp);
+	/** Sets base frequency in Hzs if not using const periodic data
+	 * 	@param freq Frequency in Hz (1/s) float value.
+	 */
+	void setBaseFrequency(float freq);
+	/** Sets base period in seconds if not using const periodic data
+	 * 	@param period Period in s (1/Hz) float value.
+	 */
+	void setBasePeriod(float period);
+	/** Sets base initial phase in radians  if not using const periodic data
+	 * 	@param phase Phase in radians.
+	 */
+	void setBasePhase(float phase);
+
+	/** Sets periodic data size to 1 and base amplitude, frequency and initial phase **/
 	void setPeriodicData(float amp, float freq, float phase);
+
 	void setPeriodicData(uint8_t dataSize, float *amps, float *freqs, float *phases);
 
 	void setPeriodicData(uint8_t dataSize, const float *amps, const float *freqs, const float *phases);
@@ -98,7 +153,8 @@ public:
 
 	// FUNCTIONS
 
-	float circleAround(CircleAroundData data);
+	// template<int N>
+	// float cosines(PeriodicDataT<N> data);
 
 	/** Cosines addition
 	 * @param size Number of cosines
@@ -116,11 +172,15 @@ public:
 	 */
 	float sines(uint8_t size, float *amplitudes, float *freqs, float *phases);
 
+	// CIRCLES TODO TEST
+	float circleAround(CircleAroundData data);
+
 	float circle(float f, float ph = 0.0);
+
 	float circles(uint8_t size, float *amplitudes, float *freqs, float *phases);
 
 	/**
-	 * Maps a value in the range [0,1)
+	 * Maps a value in the range [0,1) ????
 	 */
 	float getInCircle(float f);
 
@@ -141,25 +201,25 @@ public:
 	 * @param minDistance If true, min distance path between end and start will be calculated.
 	 */
 	void setCircleFromTo(float start, float end, float period, bool minDistance = false);
+
+	// WAVE FORMS
 	float sawtooth(float frequency, float phase0 = 0);
-
 	float inverseSawtooth(float frequency, float phase0 = 0);
-
 	float triangular(float frequency, float phase0 = 0, float k = 0.5);
 	float pulse(float frequency, float phase0 = 0, float k = 0.5);
-
 	float rectangular(float frequency, float phase0 = 0, float k = 0.5);
-
 	float square(float frequency, float phase0 = 0, float k = 0.5);
-	float rhomboidWave(float frequency, float phase0 = 0, float k = 0.5);
-
+	float rhomboid(float frequency, float phase0 = 0, float k = 0.5);
 	float sinePulse(float frequency, float phase0 = 0, float k = 0.5);
 
+	// LINEAR MOVEMENT
 	float linearMovement(float x0, float v);
 
 	void setFunctionType(uint8_t type);
 
-	float updateFuntion();
+	float value();
+
+	void debugData();
 };
 
 #endif /* FUNCTIONS_H_ */
