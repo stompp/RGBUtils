@@ -74,6 +74,9 @@ protected:
 	float *_freqs;
 	float *_phases;
 
+	/** Free allocated memory **/
+	void clearMemory();	
+
 public:
 	float speed = 1.0;
 	float k_param = 0.5;
@@ -99,62 +102,63 @@ public:
 
 	virtual ~Functions();
 
-	/** Sets startTime to now mills */
+	/** Reset internal timer to current time */
 	void resetTimer();
 
-	/* Gets internal function time in milliseconds	(ms)*/
+	/* Get internal function time in milliseconds	(ms)*/
 	float mt();
 
-	/* Gets internal function time in seconds (s)	 */
+	/* Get internal function time in seconds (s)	 */
 	float t();
 
-	/* Gets angular phase (TWO_PI*t) for internal time (s)
+	/* Get angular phase (TWO_PI*t) for internal time (s)
 	 */
 	float wt();
 
-	/* Gets angular phase (TWO_PI*f*t) for internal time (s)
+	/* Get angular phase (TWO_PI*f*t) for internal time (s)
 	 * @param in Hertz (1/s)
 	 */
 	float wt(float freq);
 
-	/* Gets angular phase (TWO_PI*f*t) for
-	 * @param freq Frequency in Hertz (1/s)
+	/* Get angular phase (TWO_PI*f*t) for
+	 * @param freq Frequency in Hertzs (1/s)
 	 * @param phase0 Initial phase in radians
 	 */
 	float wt(float freq, float phase0);
 
-	/** Sets base amplitude if not using const periodic data
+	/** Set base amplitude if not using const periodic data
 	 * 	@param amp Amplitude float value, best 1.0 to use as a base function
 	 */
 	void setBaseAmp(float amp);
-	/** Sets base frequency in Hzs if not using const periodic data
+
+	/** Set base frequency in Hzs if not using const periodic data
 	 * 	@param freq Frequency in Hz (1/s) float value.
 	 */
 	void setBaseFrequency(float freq);
-	/** Sets base period in seconds if not using const periodic data
+
+	/** Set base period in seconds if not using const periodic data
 	 * 	@param period Period in s (1/Hz) float value.
 	 */
 	void setBasePeriod(float period);
-	/** Sets base initial phase in radians  if not using const periodic data
+	
+	/** Set base initial phase in radians  if not using const periodic data
 	 * 	@param phase Phase in radians.
 	 */
 	void setBasePhase(float phase);
 
-	/** Sets periodic data size to 1 and base amplitude, frequency and initial phase **/
+	/** Set periodic data size to 1 and base amplitude, frequency and initial phase **/
 	void setPeriodicData(float amp, float freq, float phase);
 
+	/** Set periodic data doing a copy from input data **/
 	void setPeriodicData(uint8_t dataSize, float *amps, float *freqs, float *phases);
 
+	/** Set periodic data pointing to constant input data **/
 	void setPeriodicData(uint8_t dataSize, const float *amps, const float *freqs, const float *phases);
 
-	void clearMemory();
-
+	/** Set periodic data size allocating memory **/		
 	void resetPeriodicData(uint8_t newSize = 0);
 
 	// FUNCTIONS
-
-	// template<int N>
-	// float cosines(PeriodicDataT<N> data);
 
 	/** Cosines addition
 	 * @param size Number of cosines
